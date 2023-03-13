@@ -1,21 +1,20 @@
 import useWindowDimensions, { WindowDimensions } from '@/hooks/useWindow'
-import { FC, useEffect, useMemo, useRef, Ref, useState } from 'react'
-import styled, { css, keyframes } from "styled-components";
+import Image from 'next/image';
+import { FC, useEffect, useMemo, useRef, useState } from 'react'
+import styled, { keyframes } from "styled-components";
 
 const InnerBody: FC<{
   boxSize: WindowDimensions,
   windowDimension: WindowDimensions,
 }> = ({ boxSize, windowDimension, }) => {
 
+  const maxImage = 5;
   const ref = useRef<HTMLDivElement>(null);
-  const [color, setColor] = useState(Math.floor(Math.random()*16777215).toString(16));
-  const [lastEdge, setLastEdge] = useState<'x' | 'y' | null>('x');
+  const [imgId, setImgId] = useState(1);
   const [deltaX, setDeltaX] = useState([0, 0, 0]);
   const [deltaY, setDeltaY] = useState([0, 0, 0]);
 
   const edge = useMemo(() => {
-    const bufferX = windowDimension.width * 0.01;
-    const bufferY = windowDimension.height * 0.01;
     const edgeX = [0, windowDimension.width - boxSize.width];
     const edgeY = [0, windowDimension.height - boxSize.height];
 
@@ -39,17 +38,23 @@ const InnerBody: FC<{
     }
   }, []);
 
+  const selectImg = () => {
+    const id = Math.floor(Math.random()* maxImage) + 1;
+    console.log(id)
+    return id;
+  }
+
   useEffect(() => {
     const [edgeX] = edge;
     const [t0, t1, t2] = deltaX;
     if(t1 > edgeX[1] /2) {
       // on the right side
       if (t1 > t0 && t1 > t2) {
-        setColor(Math.floor(Math.random()*16777215).toString(16));
+        setImgId(selectImg());
       }
     } else {
       if (t1 < t0 && t1 < t2) {
-        setColor(Math.floor(Math.random()*16777215).toString(16));
+        setImgId(selectImg());
       }
     }
   }, [deltaX, edge]);
@@ -60,11 +65,11 @@ const InnerBody: FC<{
     if(t1 > edgeY[1] /2) {
       // on the right side
       if (t1 > t0 && t1 > t2) {
-        setColor(Math.floor(Math.random()*16777215).toString(16));
+        setImgId(selectImg());
       }
     } else {
       if (t1 < t0 && t1 < t2) {
-        setColor(Math.floor(Math.random()*16777215).toString(16));
+        setImgId(selectImg());
       }
     }
   }, [deltaY, edge]);
@@ -73,16 +78,16 @@ const InnerBody: FC<{
     <span 
       ref={ref}
       style={{
-        backgroundColor: `#${color}`,
         width: '100%',
         height: '100%',
         borderRadius: '50%',
         alignItems: 'center',
         justifyContent: 'center',
         display: 'flex',
+        position: 'relative',
       }}
     >
-      DVD Player
+      <Image src={`/cat0${imgId}.png`} fill style={{ objectFit: 'cover' }} alt='image' />
     </span>
   )
 }
@@ -92,14 +97,14 @@ const Box: FC<{
 }> = ({ windowDimension }) => {
   const baseSpeed = 5;
   const boxAspectRatio = 16 / 9;
-  const boxScaleToWindow = 0.1;
+  const boxScaleToWindow = 0.25;
 
   const boxSize = useMemo(() => {
     const { width } = windowDimension;
     const boxWidth = width * boxScaleToWindow;
     const boxHeight = boxWidth / boxAspectRatio;
     return { width: boxWidth, height: boxHeight };
-  }, [windowDimension]);
+  }, [windowDimension, boxScaleToWindow, boxAspectRatio, ]);
 
   const moveX = (width: number) => keyframes`from { left: 0px; } to { left: ${width}px; }`;
   const moveY = (height: number) => keyframes`from { top: 0px; } to { top: ${height}px; }`;

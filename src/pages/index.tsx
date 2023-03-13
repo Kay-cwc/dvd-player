@@ -40,7 +40,7 @@ const InnerBody: FC<{
 
   const selectImg = () => {
     const id = Math.floor(Math.random()* maxImage) + 1;
-    console.log(id)
+    if (id === imgId) return (id + 1) % maxImage; 
     return id;
   }
 
